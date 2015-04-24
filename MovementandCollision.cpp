@@ -1,33 +1,33 @@
+#ifdef __APPLE__
 #  include <GL/glew.h>
-#include <GL/freeglut.h>
-#  include <GL/glext.h>
+
+# include <GLUT/glut.h>
+
+# include <GLUT/glut.h>
+# include <OpenGL/glext.h>
+#else
+# include <GL/glew.h>
+# include <GL/freeglut.h>
+# include <GL/glext.h>
 #pragma comment(lib, "glew32.lib") 
 #endif
-# include <iostream>
-using namespace std;
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include <time.h>
-#include <cstdlib>
+#include <iostream>
 #include <fstream>
+#include <cstdlib>
+#include <string>
 
-static int isSelecting = 0;
-static unsigned int buffer[1024]; // Hit buffer.
+using namespace std;
 
-
-#define PI 3.14159265
-enum ObjType { CUBE, TEAPOT, CONE , CYLINDER,SPHERE,TORUS,SPHERELARGE};
-
-static int globalminZ = 99999999;
-// set up variables to process mouse
-static int window_width;
-static int window_height;
-static int last_mouse_x;
-static int last_mouse_y;
-
-//float lastx, lasty;
 static int isCollision = 0;
+
+double M_PI = 3.14159265;
+
+enum ObjType { CUBE };
+
 typedef struct
 {
 	ObjType type;
@@ -36,100 +36,343 @@ typedef struct
 	float y;
 	float z;
 
-	int selected;
 } object;
 
 
-static const int num_objects = 11;
-
 static object objects[] =
-{ { CUBE, 0, -.2, -10, 0 },
-{ TEAPOT, 0, .9, -10, 0 },
-{ CONE, 5, -1, -10, 0 },
-{ CONE, -5, -1, -10, 0 },
-{CYLINDER, -8, -1, -7, 0},
-{ CYLINDER, 8, -1, -7, 0 },
-{ CYLINDER, 8, -1, -15, 0 },
-{ CYLINDER, -8, -1, -15, 0 },
-{ SPHERE, 0, 5, -5, 0 },
-{TORUS, 0,2,-20,0},
-{SPHERELARGE, 0,5,-10,0 }
-
+{
+	{ CUBE, -97, 0, -40 },
+	{ CUBE, -97, 0, -46 },
+	{ CUBE, -97, 0, -52 },
+	{ CUBE, -97, 0, -58 },
+	{ CUBE, -97, 0, -64 },
+	{ CUBE, -97, 0, -70 },
+	{ CUBE, -97, 0, -76 },
+	{ CUBE, -97, 0, -82 },
+	{ CUBE, -97, 0, -88 },
+	{ CUBE, -97, 0, -94 },
+	{ CUBE, 0, 0, 0 }, //e
+	{ CUBE, -91, 0, -40 },
+	{ CUBE, -91, 0, -46 },
+	{ CUBE, -91, 0, -52 },
+	{ CUBE, -91, 0, -58 },
+	{ CUBE, -91, 0, -64 },
+	{ CUBE, -91, 0, -70 },
+	{ CUBE, -91, 0, -76 },
+	{ CUBE, -91, 0, -82 },
+	{ CUBE, -91, 0, -88 },
+	{ CUBE, -91, 0, -94 },
+	{ CUBE, 0, 0, 0 }, //e
+	{ CUBE, -85, 0, -40 },
+	{ CUBE, -85, 0, -46 },
+	{ CUBE, -85, 0, -52 },
+	{ CUBE, -85, 0, -58 },
+	{ CUBE, -85, 0, -64 },
+	{ CUBE, -85, 0, -70 },
+	{ CUBE, -85, 0, -76 },
+	{ CUBE, -85, 0, -82 },
+	{ CUBE, -85, 0, -88 },
+	{ CUBE, -85, 0, -94 },
+	{ CUBE, 0, 0, 0 }, //e
+	{ CUBE, -79, 0, -40 },
+	{ CUBE, -79, 0, -46 },
+	{ CUBE, -79, 0, -52 },
+	{ CUBE, -79, 0, -58 },
+	{ CUBE, -79, 0, -64 },
+	{ CUBE, -79, 0, -70 },
+	{ CUBE, -79, 0, -76 },
+	{ CUBE, -79, 0, -82 },
+	{ CUBE, -79, 0, -88 },
+	{ CUBE, -79, 0, -94 },
+	{ CUBE, 0, 0, 0 }, //e
+	{ CUBE, -73, 0, -40 },
+	{ CUBE, -73, 0, -46 },
+	{ CUBE, -73, 0, -52 },
+	{ CUBE, -73, 0, -58 },
+	{ CUBE, -73, 0, -64 },
+	{ CUBE, -73, 0, -70 },
+	{ CUBE, -73, 0, -76 },
+	{ CUBE, -73, 0, -82 },
+	{ CUBE, -73, 0, -88 },
+	{ CUBE, -73, 0, -94 },
+	{ CUBE, 0, 0, 0 }, //e
+	{ CUBE, -67, 0, -40 },
+	{ CUBE, -67, 0, -46 },
+	{ CUBE, -67, 0, -52 },
+	{ CUBE, -67, 0, -58 },
+	{ CUBE, -67, 0, -64 },
+	{ CUBE, -67, 0, -70 },
+	{ CUBE, -67, 0, -76 },
+	{ CUBE, -67, 0, -82 },
+	{ CUBE, -67, 0, -88 },
+	{ CUBE, -67, 0, -94 },
+	{ CUBE, 0, 0, 0 }, //e
+	{ CUBE, -61, 0, -40 },
+	{ CUBE, -61, 0, -46 },
+	{ CUBE, -61, 0, -52 },
+	{ CUBE, -61, 0, -58 },
+	{ CUBE, -61, 0, -64 },
+	{ CUBE, -61, 0, -70 },
+	{ CUBE, -61, 0, -76 },
+	{ CUBE, -61, 0, -82 },
+	{ CUBE, -61, 0, -88 },
+	{ CUBE, -61, 0, -94 },
+	{ CUBE, 0, 0, 0 }, //e
+	{ CUBE, -55, 0, -40 },
+	{ CUBE, -55, 0, -46 },
+	{ CUBE, -55, 0, -52 },
+	{ CUBE, -55, 0, -58 },
+	{ CUBE, -55, 0, -64 },
+	{ CUBE, -55, 0, -70 },
+	{ CUBE, -55, 0, -76 },
+	{ CUBE, -55, 0, -82 },
+	{ CUBE, -55, 0, -88 },
+	{ CUBE, -55, 0, -94 },
+	{ CUBE, 0, 0, 0 }, //e
+	{ CUBE, -49, 0, -40 },
+	{ CUBE, -49, 0, -46 },
+	{ CUBE, -49, 0, -52 },
+	{ CUBE, -49, 0, -58 },
+	{ CUBE, -49, 0, -64 },
+	{ CUBE, -49, 0, -70 },
+	{ CUBE, -49, 0, -76 },
+	{ CUBE, -49, 0, -82 },
+	{ CUBE, -49, 0, -88 },
+	{ CUBE, -49, 0, -94 },
+	{ CUBE, 0, 0, 0 }, //e
+	{ CUBE, -43, 0, -40 },
+	{ CUBE, -43, 0, -46 },
+	{ CUBE, -43, 0, -52 },
+	{ CUBE, -43, 0, -58 },
+	{ CUBE, -43, 0, -64 },
+	{ CUBE, -43, 0, -70 },
+	{ CUBE, -43, 0, -76 },
+	{ CUBE, -43, 0, -82 },
+	{ CUBE, -43, 0, -88 },
+	{ CUBE, -43, 0, -94 },
+	{ CUBE, 0, 0, 0 }, //e
+	{ CUBE, -37, 0, -40 },
+	{ CUBE, -37, 0, -46 },
+	{ CUBE, -37, 0, -52 },
+	{ CUBE, -37, 0, -58 },
+	{ CUBE, -37, 0, -64 },
+	{ CUBE, -37, 0, -70 },
+	{ CUBE, -37, 0, -76 },
+	{ CUBE, -37, 0, -82 },
+	{ CUBE, -37, 0, -88 },
+	{ CUBE, -37, 0, -94 },
+	{ CUBE, 0, 0, 0 }, //e
+	{ CUBE, -31, 0, -40 },
+	{ CUBE, -31, 0, -46 },
+	{ CUBE, -31, 0, -52 },
+	{ CUBE, -31, 0, -58 },
+	{ CUBE, -31, 0, -64 },
+	{ CUBE, -31, 0, -70 },
+	{ CUBE, -31, 0, -76 },
+	{ CUBE, -31, 0, -82 },
+	{ CUBE, -31, 0, -88 },
+	{ CUBE, -31, 0, -94 },
+	{ CUBE, 0, 0, 0 }, //e
 };
+// this array holds the center locations of each cube
+static int objs[] = {
+	-97, -40,
+	-97, -46,
+	-97, -52,
+	-97, -58,
+	-97, -64,
+	-97, -70,
+	-97, -76,
+	-97, -82,
+	-97, -88,
+	-97, -94,
+	0, 0,
+	-91, -40,
+	-91, -46,
+	-91, -52,
+	-91, -58,
+	-91, -64,
+	-91, -70,
+	-91, -76,
+	-91, -82,
+	-91, -88,
+	-91, -94,
+	0, 0,
+	-85, -40,
+	-85, -46,
+	-85, -52,
+	-85, -58,
+	-85, -64,
+	-85, -70,
+	-85, -76,
+	-85, -82,
+	-85, -88,
+	-85, -94,
+	0, 0,
+	-79, -40,
+	-79, -46,
+	-79, -52,
+	-79, -58,
+	-79, -64,
+	-79, -70,
+	-79, -76,
+	-79, -82,
+	-79, -88,
+	-79, -94,
+	0, 0,
+	-73, -40,
+	-73, -46,
+	-73, -52,
+	-73, -58,
+	-73, -64,
+	-73, -70,
+	-73, -76,
+	-73, -82,
+	-73, -88,
+	-73, -94,
+	0, 0,
+	-67, -40,
+	-67, -46,
+	-67, -52,
+	-67, -58,
+	-67, -64,
+	-67, -70,
+	-67, -76,
+	-67, -82,
+	-67, -88,
+	-67, -94,
+	0, 0,
+	-61, -40,
+	-61, -46,
+	-61, -52,
+	-61, -58,
+	-61, -64,
+	-61, -70,
+	-61, -76,
+	-61, -82,
+	-61, -88,
+	-61, -94,
+	0, 0,
+	-55, -40,
+	-55, -46,
+	-55, -52,
+	-55, -58,
+	-55, -64,
+	-55, -70,
+	-55, -76,
+	-55, -82,
+	-55, -88,
+	-55, -94,
+	0, 0,
+	-49, -40,
+	-49, -46,
+	-49, -52,
+	-49, -58,
+	-49, -64,
+	-49, -70,
+	-49, -76,
+	-49, -82,
+	-49, -88,
+	-49, -94,
+	0, 0,
+	-43, -40,
+	-43, -46,
+	-43, -52,
+	-43, -58,
+	-43, -64,
+	-43, -70,
+	-43, -76,
+	-43, -82,
+	-43, -88,
+	-43, -94,
+	0, 0,
+	-37, -40,
+	-37, -46,
+	-37, -52,
+	-37, -58,
+	-37, -64,
+	-37, -70,
+	-37, -76,
+	-37, -82,
+	-37, -88,
+	-37, -94,
+	0, 0,
+	-31, -40,
+	-31, -46,
+	-31, -52,
+	-31, -58,
+	-31, -64,
+	-31, -70,
+	-31, -76,
+	-31, -82,
+	-31, -88,
+	-31, -94,
+	0, 0 };
 
-static float my_x = 0;
+
+
+static float my_x = -42;
 static float my_y = 0;
-static float my_z = 0;
+static float my_z = -46;
 static float my_angle = 0;
+static float up_down_angle = 0;
+
+static int window_width;
+static int window_height;
+static int last_mouse_x;
+static int last_mouse_y;
+
+int n;
+char output[132];
+
+static int startTime;
+static int endTime;
+static int totalTime;
+static char theStringBuffer[10]; // String buffer.
+static long font = (long)GLUT_BITMAP_8_BY_13; // Font selection.
+static int score = 1000000;
+static bool done = false;
 
 
+//this array holds the locations of the cubes that are drawn in the map
+static int cubeLoc[600];
+//this takes the values of the camera and checks with nearby cubes to check for intersection
 int checkSpheresIntersection(float x1, float y1, float z1, float r1,
 	float x2, float y2, float z2, float r2)
 {
+	//cout << sqrt(((x1 - x2)*(x1 - x2))+ ((z1 - z2)*(z1 - z2))) << endl;
 	
-	return ((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2) + (z1 - z2)*(z1 - z2) <= (r1 + r2)*(r1 + r2));
+	return (sqrt((x1 - x2)*(x1 - x2) + (z1 - z2)*(z1 - z2)) <= (r2 ));
 }
+//this takes the values of the current camera location and checks for collision
 int objectCollision(float x, float z, float a)
 {
-//this array holds the x , y, z locations for cube centers. 
-	int objs[] = {
-		0, -.2, -10, 
-		-5, -1, -10,
-		5, -1, -10,
-		-8, -1, -7,
-		8, -1, -7 
-	};
+	int i;
+
 	float camx = x;
 	float camz = z;
 	float camangle = a;
-	int i,j;
-	//float d;
+	
 	int arrCount = sizeof(objs) / sizeof(objs[0]);
 
-	for (i = 0; i < arrCount; i+= 3)
-	{
-		if (checkSpheresIntersection(camx - 1 * sin((PI / 180.0) * camangle), 0.0,
-			camz - 1 * cos((PI / 180.0) * camangle), 1,
-			objs[i], objs[i+1],
-			objs[i+2], .3))
-			return 1;
-	
+	for (i = 0; i < arrCount; i +=2)
+	{		
+		if ((cubeLoc[i] >(camx - 4) && cubeLoc[i] < (camx + 4)) && (cubeLoc[i + 1] > (camz - 4) && cubeLoc[i + 1] < (camz + 4)))
+		{
+			//cout << "camx and camz" << camx << camz << endl;
+			//cout << "objsi and objsi+1" << cubeLoc[i] << cubeLoc[i + 1] << endl;
+			if (checkSpheresIntersection(camx , 0.0, camz , 1,
+				cubeLoc[i], 0, cubeLoc[i + 1], 3.3)){
+				cout << "Wall hit" << endl;
+				return 1;
+			
+			}				
+		}
+		
 	}
-	
-	
 	return 0;
 }
- 
-void drawFloor()
-{
-	glColor3f(.5, .5, .5);
-	glBegin(GL_POLYGON);
-	glVertex3f(-100, -1, -100);
-	glVertex3f(100, -1, -100);
-	glVertex3f(100, -1, 100);
-	glVertex3f(-100, -1, 100);
-	glEnd();
 
-}
-static int r = 0;
-static int turn = 0;
-void update(int ignore)
-{
-	if (r < 365 )
-	{
-		
-		r += 5;
-		
-	}
-	else if (r > 360)
-	{
-		r = 0;
-	}
-
-	glutPostRedisplay();
-	glutTimerFunc(50, update, 0);
-	
-}
 
 void drawObject(const object& o)
 {
@@ -137,201 +380,172 @@ void drawObject(const object& o)
 	glTranslatef(o.x, o.y, o.z);
 	glLineWidth(1);
 
-
-	if (o.selected)
-	{
-		glColor3f(1.0, 0.0, 0.0);
-		
-	}
-	else
-	{
-		glColor3f(0.0, 1.0, 1.0);
-		
-	}
-
-
-
 	switch (o.type)
 	{
 	case CUBE:
+		//cube front
+		glBegin(GL_TRIANGLES);
+		glTexCoord2f(0, 0); glVertex3f(-3, -3, 3);
+		glTexCoord2f(1, 0); glVertex3f(3, -3, 3);
+		glTexCoord2f(1, 1); glVertex3f(3, 3, 3);
 
-		glutSolidCube(1.8);
-		glColor3f(0, 0, 0);
+		glTexCoord2f(1, 1); glVertex3f(3, 3, 3);
+		glTexCoord2f(0, 1); glVertex3f(-3, 3, 3);
+		glTexCoord2f(0, 0); glVertex3f(-3, -3, 3);
+		glEnd();
 
-		glutWireCube(1.8);
+		//cube right
+		glBegin(GL_TRIANGLES);
+		glTexCoord2f(0, 0); glVertex3f(3.0, -3.0, 3.0);
+		glTexCoord2f(1, 0); glVertex3f(3, -3, -3);
+		glTexCoord2f(1, 1); glVertex3f(3, 3, -3);
 
-		break;
+		glTexCoord2f(1, 1); glVertex3f(3, 3, -3);
+		glTexCoord2f(0, 1); glVertex3f(3, 3, 3);
+		glTexCoord2f(0, 0); glVertex3f(3, -3, 3);
+		glEnd();
 
-	case SPHERELARGE:
-		
-		glutSolidSphere(20,2,3);
-		glColor3f(0, 0, 0);
+		//cube left
+		glBegin(GL_TRIANGLES);
+		glTexCoord2f(0, 0); glVertex3f(-3, -3, 3);
+		glTexCoord2f(1, 0); glVertex3f(-3, -3, -3);
+		glTexCoord2f(1, 1); glVertex3f(-3, 3, -3);
 
-		glutWireSphere(20,2,3);
+		glTexCoord2f(1, 1); glVertex3f(-3, 3, -3);
+		glTexCoord2f(0, 1); glVertex3f(-3, 3, 3);
+		glTexCoord2f(0, 0); glVertex3f(-3, -3, 3);
+		glEnd();
 
-		break;
+		//cube back
+		glBegin(GL_TRIANGLES);
+		glTexCoord2f(0, 0); glVertex3f(-3, -3, -3);
+		glTexCoord2f(1, 0); glVertex3f(3, -3, -3);
+		glTexCoord2f(1, 1); glVertex3f(3, 3, -3);
 
-	case TEAPOT:
-		
-		glRotatef(r, 0, 1, 0);
-		glScalef(.30, .30, .30);
-		glutSolidTeapot(1);
-		glColor3f(1, 0, 1);
-		glutWireTeapot(1);
-		
-		break;
+		glTexCoord2f(1, 1); glVertex3f(3, 3, -3);
+		glTexCoord2f(0, 1); glVertex3f(-3, 3, -3);
+		glTexCoord2f(0, 0); glVertex3f(-3, -3, -3);
+		glEnd();
 
+		//cube top
+		glBegin(GL_TRIANGLES);
+		glTexCoord2f(0, 0); glVertex3f(-3, 3, 3);
+		glTexCoord2f(1, 0); glVertex3f(3, 3, 3);
+		glTexCoord2f(1, 1); glVertex3f(3, 3, -3);
 
-	case CONE:
-		
-		glRotatef(90, -1, 0, 0);
-		glScalef(0.35, 0.35, 0.35);
-		glutSolidCone(5, 10, 5, 3);
-		glColor3f(0, 0, 0);
-		glutWireCone(5, 10, 5, 3);
+		glTexCoord2f(1, 1); glVertex3f(3, 3, -3);
+		glTexCoord2f(0, 1); glVertex3f(-3, 3, -3);
+		glTexCoord2f(0, 0); glVertex3f(-3, 3, 3);
+		glEnd();
 
-		
-		break;
+		//cube botton
+		glBegin(GL_TRIANGLES);
+		glTexCoord2f(0, 0); glVertex3f(-3, -3, 3);
+		glTexCoord2f(1, 0); glVertex3f(3, -3, 3);
+		glTexCoord2f(1, 1); glVertex3f(3, -3, -3);
 
-	case CYLINDER:
-		
-		glRotatef(90, -1, 0, 0);
-		glutSolidCylinder(2, 6, 18, 3);
-		
-		glColor3f(0, 0, 0);
-		glutWireCylinder(2, 6, 18, 3);
-		
-		break;
-	case SPHERE:
-		
-		glRotatef(90, -1, 0, 0);
-		glutSolidSphere(3, 12, 10);
-		glColor3f(0, 1, 0);
-
-		glutWireSphere(3,12,10);
-		break;
-
-	case TORUS:
-		
-		glutSolidTorus(1, 2, 20, 15);
-		glColor3f(0, 0, 0);
-		glutWireTorus(1, 2, 20, 15);
-	
+		glTexCoord2f(1, 1); glVertex3f(3, -3, -3);
+		glTexCoord2f(1, 0); glVertex3f(-3, -3, -3);
+		glTexCoord2f(0, 0); glVertex3f(-3, -3, 3);
+		glEnd();
 		break;
 	}
-
-
 	glPopMatrix();
 }
-static int highlightFrames = 10;
-static unsigned int closestName = 0;
-void drawShapes()
-{
-	
 
-	for (int i = 0; i<num_objects; i++)
-	{
-		
-		if (isSelecting) glLoadName(i) ;
-			  
-		drawObject(objects[i]);
-		
-	}
-	if (isSelecting)glPopName();
-	
+void drawFloor()
+{
+	glColor3f(.5, .5, .5);
+	glBegin(GL_POLYGON);
+	glVertex3f(-100, -3, -100);
+	glVertex3f(-28, -3, -100);
+	glVertex3f(-28, -3, -40);
+	glVertex3f(-100, -3, -40);
+	glEnd();
+}
+
+// Routine to draw a bitmap character string.
+void writeBitmapString(void *font, char *string)
+{
+	char *c;
+
+	for (c = string; *c != '\0'; c++) glutBitmapCharacter(font, *c);
+}
+
+// Routine to convert floating point to char string.
+void floatToString(char * destStr, int precision, float val)
+{
+	sprintf(destStr, "%f", val);
+	destStr[precision] = '\0';
 }
 
 // Drawing routine.
 void drawScene(void)
 {
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
+	n = 0;
 
 	// calculate heading
-
-	gluLookAt(my_x, my_y, my_z, my_x - sin((PI / 180)*my_angle), 0, my_z -  cos((PI / 180.0)*my_angle), 0, 1, 0);
-
+	gluLookAt(my_x, my_y, my_z,
+		my_x - sin((M_PI / 180.0)*my_angle), 0, my_z - cos((M_PI / 180.0)*my_angle), 0, 1, 0);
 
 	drawFloor();
-	drawShapes();
-	//for (int i = 0; i<num_cs; i++)
-	//{
-	//	drawObject(objects[i]);
-	//}
+	int m=0, j = 0;
+	for (n = 0; n <= 132; n++){
+
+		if ('1' == output[n]){
+			glColor3f(1, 0, 0);
+			drawObject(objects[n]);
+			cubeLoc[j] = objs[m];
+			cubeLoc[j+1] = objs[m+1];
+			j+=2;
+			m+=2;
+		}
+
+		if ('2' == output[n]){
+			glColor3f(0, 0, 1);
+			drawObject(objects[n]);
+			cubeLoc[j] = objs[m];
+			cubeLoc[j + 1] = objs[m + 1];
+			j+=2;
+			m+=2;
+		}
+
+		if ('e' == output[n]){ m += 2; } //do nothing
+
+		if ('b' == output[n]){ m += 2; } //do nothing
+
+		if ('s' == output[n]){ m += 2; } //do nothing
+	}
+
+	glPushMatrix();
+	glColor3f(0.0, 0.0, 0.0);
+	floatToString(theStringBuffer, 4, glutGet(GLUT_ELAPSED_TIME) / 1000);
+	glWindowPos3f(200.0, 480.0, -2.0);
+	writeBitmapString((void*)font, "Time: ");
+	writeBitmapString((void*)font, theStringBuffer);
+	glutPostRedisplay();
+	glPopMatrix();
 
 	glutSwapBuffers();
 }
 
-void pickFunction(int button, int state, int x, int y)
-{
-
-	int viewport[4]; // Viewport data.
-
-	if (button != GLUT_LEFT_BUTTON || state != GLUT_DOWN) return; // Don't react unless left button is pressed.
-
-	glGetIntegerv(GL_VIEWPORT, viewport); // Get viewport data.
-
-	glSelectBuffer(1024, buffer); // Specify buffer to write hit records in selection mode
-	glRenderMode(GL_SELECT); // Enter selection mode.
-
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-
-	// Define a viewing volume corresponding to selecting in 3 x 3 region around the cursor.
-	glLoadIdentity();
-	gluPickMatrix((float)x, (float)(viewport[3] - y), 3.0, 3.0, viewport);
-	// glFrustum(-5.0, 5.0, -5.0, 5.0, 5.0, 100.0); // Copied from the reshape routine.
-	gluPerspective(50, 1, 0.1, 250);
-	gluLookAt(my_x, my_y, my_z, my_x - sin((PI / 180)*my_angle), 0, my_z - cos((PI / 180.0)*my_angle), 0, 1, 0);
-
-	glMatrixMode(GL_MODELVIEW); // Return to modelview mode before drawing.
-	glLoadIdentity();
-
-	glInitNames(); // Initializes the name stack to empty.
-	glPushName(0); // Puts name 0 on top of stack.
-
-	isSelecting = 1;
-	drawShapes();
-	isSelecting = 0;
-	glPopName();
-
-	int hits = glRenderMode(GL_RENDER);
-
-	printf("clicked on %d thing[s]\n", hits);
-
-	if (hits > 0)
-	{
-		unsigned int* ptr = buffer;
-		unsigned int name=1;
-		
-		for (int i = 0; i<hits; i++)
-		{
-			ptr++;
-
-			unsigned int minZ = *ptr;
-			ptr += 2;
-			unsigned int stack_top = *ptr;
-			ptr++;
-			
-			if (minZ < globalminZ || i ==0)
-			{
-				globalminZ = minZ;
-
-				name = stack_top;
-				
-			}
-			printf("item %u at %f\n", stack_top, minZ*1.0 / 0xffffffff);
-		}
-		objects[name].selected = !objects[name].selected;
-	}
-	
-	
-	// Restore viewing volume of the resize routine and return to modelview mode.
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-
+void Timer(int value) {
+	glutTimerFunc(33, Timer, 0);
 	glutPostRedisplay();
+}
+
+void printScore(void)
+{
+	totalTime = (endTime - startTime);
+	score = score - totalTime;
+	char numstr1[21];
+	sprintf(numstr1, "%d", score);
+	string label1 = "Score: ";
+	string result1 = label1 + numstr1;
+	cout << result1 << endl;
 }
 
 // Initialization routine.
@@ -339,7 +553,6 @@ void setup(void)
 {
 	glClearColor(1.0, 1.0, 1.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_POLYGON_OFFSET_FILL);
 	glPolygonOffset(1, 1);
 }
 
@@ -358,136 +571,44 @@ void resize(int w, int h)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(50, aspect, 0.1, 250);
-	//   glFrustum(-5,5,-5,5,5,200);
-	//   glOrtho(-5,5,-5,5,0,200);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 }
 
-void trackMouse(int x, int y)
+void gameOver(void)
 {
-	last_mouse_x = x;
-	last_mouse_y = y;
-	//cout << last_mouse_x;
-	
-		
-}
-static int current_mouse ;
-static int old_mouse;// = window_width / 2;
-//not using this mouse movement. 
-void mousePositionIdleUpdate()
-{
-	//current_mouse = last_mouse_x;
-	//// if the last recorded mouse position is near the horizontal window
-	//// boundaries, update the angle and redraw the scene
-	//
-	//if (current_mouse == last_mouse_x)
-	//{
-	//	old_mouse = current_mouse;
-	//}
-	//else
-	//{
-	//	//old_mouse = current_mouse;
-	//	current_mouse = last_mouse_x;
-	//}
-	//
-	////current_mouse = last_mouse_x;
-	//int mouseDiff = 0;
-	//
-	//if (old_mouse < last_mouse_x)
-	//{
-	//	mouseDiff = current_mouse - old_mouse;
-	//	my_angle += mouseDiff;
-	//	cout << mouseDiff;
-	//	current_mouse = last_mouse_x;
-	//	glutPostRedisplay();
-	//}
-
-	//if (old_mouse > current_mouse)
-	//{
-	//	mouseDiff = old_mouse - current_mouse;
-	//	my_angle -= mouseDiff;
-	//	current_mouse = last_mouse_x;
-	//	glutPostRedisplay();
-	//}
-	if (last_mouse_x <= .4*window_width && last_mouse_x > .3*window_width)
-	{
-		my_angle += 0.2;
-		glutPostRedisplay();
+	if (done){
+		endTime = glutGet(GLUT_ELAPSED_TIME);
+		printScore();
 	}
-	else if (last_mouse_x <= .3*window_width && last_mouse_x > .2*window_width)
-	{
-		my_angle += 0.4;
-		glutPostRedisplay();
-	}
-	else if (last_mouse_x <= .2*window_width && last_mouse_x > .1*window_width)
-	{
-		my_angle += 0.6;
-		glutPostRedisplay();
-	}
-	else if (last_mouse_x <= .1*window_width )
-	{
-		my_angle += 1;
-		glutPostRedisplay();
-	}
-	else if (last_mouse_x >= .6*window_width && last_mouse_x < .7*window_width)
-	{
-		my_angle -= 0.2;
-		glutPostRedisplay();
-	}
-	else if (last_mouse_x >= .7*window_width && last_mouse_x < .8*window_width)
-	{
-		my_angle -= 0.4;
-		glutPostRedisplay();
-	}
-	else if (last_mouse_x >= .8*window_width && last_mouse_x < .9*window_width)
-	{
-		my_angle -= 0.6;
-		glutPostRedisplay();
-	}
-	else if (last_mouse_x >= .9*window_width )
-	{
-		my_angle -= 1;
-		glutPostRedisplay();
-	}
-
-
 }
 
 // Keyboard input processing routine.
 void keyInput(unsigned char key, int x, int y)
 {
+	
 	switch (key)
 	{
 	case 27:                  // escape
 		exit(0);
 		break;
 	case 104:
-		//my_angle += 10;
-		my_y += 50 * cos((PI / 180.0)*my_angle);
+		
+		my_y += 50 * cos((M_PI / 180.0));
 		break;
 	case 103:
 		if (my_y != 0){
-		my_y -= 50 * cos((PI / 180.0)*my_angle);
+			
+			my_y = 0;
 		}
 		break;
 	default:
 		break;
 	}
-//	glutPostRedisplay();
 }
-// this does the moving with the collision detection
+
 void specialKeyInput(int key, int x, int y)
 {
-	//int coll;
-	//if (objectCollision(my_x, my_z, my_y))
-	//{
-	//	 coll = 1;
-	//	cout << "object detected" << endl;
-	//}
-	//else
-	//	coll = 0;
-
 	float tempmy_x = my_x, tempmy_z = my_z, tempmy_angle = my_angle;
 	if (my_y == 0)
 	{
@@ -495,36 +616,29 @@ void specialKeyInput(int key, int x, int y)
 		{
 		case GLUT_KEY_LEFT:
 			tempmy_angle = my_angle + 45;
-			//my_x -= (1 * cos((PI / 180.0)*my_angle));
-			//my_z += (1 * sin((PI / 180.0)*my_angle));
+			
 			break;
 		case GLUT_KEY_RIGHT:
 			tempmy_angle = my_angle - 45;
-			//my_x += (1 * cos((PI / 180.0)*my_angle));
-			//my_z -= (1 * sin((PI / 180.0)*my_angle));
+			
 			break;
 		case GLUT_KEY_UP:
-			tempmy_x = my_x - sin((PI / 180.0)*my_angle);
-			tempmy_z = my_z - cos((PI / 180.0)*my_angle);
+			tempmy_x = my_x - 3* sin((M_PI / 180.0)*my_angle);
+			tempmy_z = my_z -3* cos((M_PI / 180.0)*my_angle);
 			break;
 		case GLUT_KEY_DOWN:
-			tempmy_x =  my_x + sin((PI / 180.0)*my_angle);
-			tempmy_z = my_z + cos((PI / 180.0)*my_angle);
+			tempmy_x = my_x + 3*sin((M_PI / 180.0)*my_angle);
+			tempmy_z = my_z + 3*cos((M_PI / 180.0)*my_angle);
 			break;
 
 		}
-		//	glutPostRedisplay();
+		
 	}
-	//else
-	//{
-		/*coll = 0;
-		my_x += 1 * sin((PI / 180.0)*my_angle);
-		my_z += 1 * cos((PI / 180.0)*my_angle);*/
-	//}
+	
 	if (tempmy_angle > 360.0) tempmy_angle -= 360;
 	if (tempmy_angle < 0) tempmy_angle += 360;
 
-	//    printf("my angle: %f\n", my_angle);
+
 
 	if (!objectCollision(tempmy_x, tempmy_z, tempmy_angle))
 	{
@@ -534,32 +648,91 @@ void specialKeyInput(int key, int x, int y)
 		my_angle = tempmy_angle;
 	}
 	else isCollision = 1;
-
+	if ((tempmy_x < -60 && tempmy_x > -74) && (tempmy_z < -95))
+	{
+		cout << "You made it!!!  " << endl;
+		done = true;
+	}
 	glutPostRedisplay();
 }
+
+void trackMouse(int x, int y)
+{
+	last_mouse_x = x;
+	last_mouse_y = y;
+}
+
+// register this with glutIdleFunc
+void mousePositionIdleUpdate()
+{
+	// if the last recorded mouse position is near the horizontal window
+	// boundaries, update the angle and redraw the scene
+	if (last_mouse_x <= .3*window_width)
+	{
+		my_angle += 0.07;
+		glutPostRedisplay();
+	}
+
+	else if (last_mouse_x >= .7*window_width)
+	{
+		my_angle -= 0.07;
+		glutPostRedisplay();
+	}
+
+	if (last_mouse_y <= .2*window_height && up_down_angle >= -1)
+	{
+		up_down_angle -= 0.008;
+		glutPostRedisplay();
+	}
+
+	else if (last_mouse_y >= .8*window_height && up_down_angle <= 1)
+	{
+		up_down_angle += 0.008;
+		glutPostRedisplay();
+	}
+
+	if (my_angle > 360.0) my_angle -= 360;
+	if (my_angle < 0) my_angle += 360;
+}
+
+
 
 
 
 // Main routine.
 int main(int argc, char **argv)
 {
+	ifstream myReadFile;
+	myReadFile.open("C:/Users/DS/Documents/!Spring 2015/Computer Graphics/cpsc_4500_vs_tmpl/GL_Template/walltest2.txt");
+	if (myReadFile.is_open()){
+		while (!myReadFile.eof()){
+			myReadFile >> output;
+		}
+	}
+
+	glutInitContextVersion(3, 1);
+	glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
+
 	glutInit(&argc, argv);
+	startTime = glutGet(GLUT_ELAPSED_TIME);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGBA);
-	glutInitWindowSize(1000, 900);
+	glutInitWindowSize(1200, 625);
 	glutInitWindowPosition(100, 100);
-	glutCreateWindow("colored objects");
+	glutCreateWindow("Maze Project.cpp");
 	glutDisplayFunc(drawScene);
 	glutReshapeFunc(resize);
 	glutKeyboardFunc(keyInput);
 	glutSpecialFunc(specialKeyInput);
 	glutPassiveMotionFunc(trackMouse);
 	//glutIdleFunc(mousePositionIdleUpdate);
-	glutMouseFunc(pickFunction);
-	
+
 	glewExperimental = GL_TRUE;
 	glewInit();
 
+
+	cout << "Use the arrow keys to move around, and hit 'h' to hover over the maze, and hit 'g' to get back on the ground" << endl;
 	setup();
-	glutTimerFunc(50, update, 0);
+	Timer(0);
+
 	glutMainLoop();
 }
